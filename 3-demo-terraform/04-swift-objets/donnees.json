@@ -1,0 +1,6 @@
+{
+  "projet": "demo-terraform",
+  "demo": 4,
+  "service": "swift",
+  "description": "Objet JSON uploade par Terraform dans le stockage objet"
+}

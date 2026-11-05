@@ -1,0 +1,61 @@
+stages:
+  - validate
+  - plan
+  - apply
+
+variables:
+  TF_STATE_NAME: "openstack-mohamed"
+  TF_HTTP_ADDRESS: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}"
+  TF_HTTP_LOCK_ADDRESS: "${TF_HTTP_ADDRESS}/lock"
+  TF_HTTP_UNLOCK_ADDRESS: "${TF_HTTP_ADDRESS}/lock"
+  TF_HTTP_LOCK_METHOD: "POST"
+  TF_HTTP_UNLOCK_METHOD: "DELETE"
+  TF_HTTP_RETRY_WAIT_MIN: "5"
+  TF_HTTP_USERNAME: "gitlab-ci-token"
+  TF_HTTP_PASSWORD: "${CI_JOB_TOKEN}"
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+
+default:
+  image:
+    name: hashicorp/terraform:1.9
+    entrypoint: [""]
+  cache:
+    key: "terraform-${CI_COMMIT_REF_SLUG}"
+    paths:
+      - .terraform/
+  before_script:
+    - terraform --version
+    - terraform init -reconfigure
+
+fmt-validate:
+  stage: validate
+  script:
+    - terraform fmt -check -recursive
+    - terraform validate
+
+plan:
+  stage: plan
+  resource_group: "tfstate-${TF_STATE_NAME}"
+  script:
+    - terraform plan -out=plan.tfplan
+    - terraform show -no-color plan.tfplan > plan.txt
+  artifacts:
+    name: "plan-${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - plan.tfplan
+      - plan.txt
+    expire_in: 1 week
+
+apply:
+  stage: apply
+  resource_group: "tfstate-${TF_STATE_NAME}"
+  needs:
+    - job: plan
+      artifacts: true
+  script:
+    - terraform apply plan.tfplan
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+  allow_failure: false

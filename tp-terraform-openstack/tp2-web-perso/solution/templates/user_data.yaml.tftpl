@@ -1,0 +1,39 @@
+#cloud-config
+# Premier démarrage de la VM : installation de nginx et page personnalisée.
+# Rendu par templatefile() — les interpolations Terraform s'écrivent avec
+# le signe dollar ; pour un dollar littéral destiné au shell, doublez-le.
+
+# snapd ralentit énormément le premier boot sous émulation : on le neutralise.
+bootcmd:
+  - systemctl mask --now snapd.service snapd.seeded.service snapd.socket || true
+
+package_update: true
+packages:
+  - nginx
+
+write_files:
+  - path: /var/www/html/index.html
+    permissions: "0644"
+    content: |
+      <!doctype html>
+      <html lang="fr">
+      <head>
+        <meta charset="utf-8">
+        <title>TP2 - ${student_name}</title>
+        <style>
+          body { font-family: sans-serif; max-width: 40rem; margin: 4rem auto; }
+          h1 { color: #2563eb; }
+          code { background: #f1f5f9; padding: 0.2rem 0.4rem; border-radius: 4px; }
+        </style>
+      </head>
+      <body>
+        <h1>${welcome_message}</h1>
+        <p>Etudiant : <strong>${student_name}</strong></p>
+        <p>Machine : <code>${vm_name}</code></p>
+        <p>Page generee par Terraform (templatefile) et deployee par cloud-init.</p>
+      </body>
+      </html>
+
+runcmd:
+  - systemctl enable --now nginx
+  - systemctl reload nginx

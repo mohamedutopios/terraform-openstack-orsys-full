@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"stack","Source":"../../stack","Dir":"../../stack"},{"Key":"stack.network","Source":"../modules/network","Dir":"../../modules/network"},{"Key":"stack.security","Source":"../modules/security","Dir":"../../modules/security"},{"Key":"stack.vm","Source":"../modules/compute","Dir":"../../modules/compute"}]}

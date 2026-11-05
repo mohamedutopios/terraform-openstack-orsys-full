@@ -1,0 +1,18 @@
+#cloud-config
+# VM1 (${vm_name}) : installation de nginx au premier boot.
+# Ubuntu 18.04 est EOL : si les dépôts standards renvoient 404, on bascule
+# sur old-releases.ubuntu.com puis on réessaie. $${...} est échappé pour
+# le shell (non interpolé par Terraform).
+
+hostname: ${vm_name}
+
+runcmd:
+  - |
+    if ! apt-get update; then
+      sed -i -e 's|archive.ubuntu.com|old-releases.ubuntu.com|g' \
+             -e 's|security.ubuntu.com|old-releases.ubuntu.com|g' \
+             /etc/apt/sources.list
+      apt-get update
+    fi
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y nginx
+  - systemctl enable --now nginx

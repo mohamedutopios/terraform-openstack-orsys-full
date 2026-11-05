@@ -1,0 +1,12 @@
+clouds:
+  kolla-aio:
+    auth:
+      auth_url: http://192.168.56.250:5000
+      username: admin
+      password: YJXdnNo5jkAOArenhlkt7l83Xt7FJOFFY7oOAQA8
+      project_name: admin
+      user_domain_name: Default
+      project_domain_name: Default
+    region_name: RegionOne
+    interface: public
+    identity_api_version: 3

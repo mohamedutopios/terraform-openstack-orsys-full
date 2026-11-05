@@ -1,0 +1,6 @@
+# Jamais dans git : caches Terraform et états locaux résiduels
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+.terraform.lock.hcl

@@ -1,0 +1,24 @@
+# Backend GitLab (état Terraform managé par GitLab) — pour l'activer :
+#   1. Supprimez le bloc backend "local" de backend.tf
+#   2. Renommez ce fichier en backend-gitlab.tf (retirez .example)
+#   3. Remplacez <PROJECT_ID> par l'ID numérique de votre projet GitLab
+#      (page du projet -> Settings -> General)
+#   4. Exportez vos identifiants (jamais dans le code !) :
+#        export TF_HTTP_USERNAME="<votre-username-gitlab>"
+#        export TF_HTTP_PASSWORD="<un-Personal-Access-Token-scope-api>"
+#      (PowerShell : $env:TF_HTTP_USERNAME = "..." ; $env:TF_HTTP_PASSWORD = "...")
+#   5. terraform init -migrate-state
+#
+# Le nom d'état "prod" isole cet environnement : chaque env a le sien.
+# Les états sont visibles dans GitLab : Operate -> Terraform states.
+
+terraform {
+  backend "http" {
+    address        = "https://gitlab.com/api/v4/projects/<PROJECT_ID>/terraform/state/prod"
+    lock_address   = "https://gitlab.com/api/v4/projects/<PROJECT_ID>/terraform/state/prod/lock"
+    unlock_address = "https://gitlab.com/api/v4/projects/<PROJECT_ID>/terraform/state/prod/lock"
+    lock_method    = "POST"
+    unlock_method  = "DELETE"
+    retry_wait_min = 5
+  }
+}
